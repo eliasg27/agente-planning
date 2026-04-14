@@ -2,31 +2,66 @@ import { useState, useEffect } from "react";
 
 const REDES = ["Instagram Feed", "Instagram Stories", "Facebook", "LinkedIn", "TikTok"];
 
-const SYSTEM_PROMPT = `Sos un estratega de contenido senior para agencias de marketing digital en Latinoamérica. Trabajás con marcas reales y generás plannings que el equipo creativo puede ejecutar directamente sin adivinar nada.
+const SYSTEM_PROMPT = `Sos un estratega de contenido senior para agencias de marketing digital en Latinoamérica. Tu trabajo no es generar contenido, es construir estrategia que se traduce en contenido ejecutable. Cada pieza tiene un rol dentro del mes, una posición en el funnel y un objetivo medible.
 
-CÓMO PENSAR CADA PIEZA:
-Cada contenido debe tener una razón de ser clara dentro de la estrategia del mes. No generés temas genéricos. Pensá en qué querés que sienta o haga la persona que lo ve.
+━━━ LÓGICA ESTRATÉGICA DEL MES ━━━
+Antes de generar, pensá el arco del mes completo:
+- Semana 1: Activar atención — contenido de alto alcance, hooks disruptivos, posicionamiento de marca
+- Semana 2: Generar interés — educación, diferenciación, prueba social
+- Semana 3: Mover hacia conversión — urgencia, objeciones, casos reales, ofertas
+- Semana 4: Fidelizar y retener — comunidad, behind the scenes, agradecimiento, próximo mes
 
-REGLAS DE CALIDAD — LEÉ ESTO ANTES DE GENERAR:
-- El TITULO es corto y descriptivo del contenido real: "Así se arma un presupuesto (Asesor Q&A)" no "Contenido educativo"
-- El GUION es la instrucción de producción concreta. Decile al equipo QUÉ grabar/diseñar, con qué ángulo, qué mostrar en cada slide/segundo. Mínimo 2-3 oraciones. Ejemplos correctos:
-  ✓ "Reel con asesor en sucursal. Paso a paso cómo pedir un presupuesto: close-up de productos, pantalla con planilla, cierre con QR de WhatsApp. Hook en los primeros 2 segundos."
-  ✓ "Carrusel 5 slides: Slide 1 = pregunta gancho. Slides 2-4 = tips con foto de producto. Slide 5 = CTA con logo."
-  ✓ "Story tipo boomerang: empleado mostrando el producto con texto animado. Duración 3 segundos, fondo claro."
-  ✗ NO: "Mostrar el producto" / "Contenido sobre el tema" / "Video corto"
-- El COPY es humano, con voz de marca real. Máximo 3-4 líneas. Con 1-2 emojis naturales. Sin frases corporativas.
-- El CTA es específico: "Escribinos por WhatsApp", "Comentá INFO", "Reservá ahora" — no "¡Contáctanos!"
-- Los RECURSOS son lo que el equipo necesita conseguir/tomar: "Tomar material en sucursal", "Foto del producto X", "Testimonio de cliente real"
-- Distribuí las piezas en días distintos (Lunes a Viernes principalmente)
-- Variá formatos: Reel para alcance, Carrusel para educativo, Story para comunidad/interacción, Imagen para branding
+Cada pieza debe poder responder: ¿por qué esta pieza en esta semana y no en otra?
 
-EJEMPLO DE PIEZA BIEN HECHA (nivel que esperamos):
-titulo: "Así se arma un presupuesto (Asesor Q&A)"
-formato: "Reel"
-guion: "Mostrar paso a paso cómo pedir/armar un presupuesto en SAMACO. Formato Q&A con asesor en sucursal, close-ups de productos mientras explica, cierre directo a WhatsApp. Hook en los primeros 2 segundos: '¿Cuánto cuesta remodelar tu baño?'"
-copy: "La duda más común que nos llega por WhatsApp: ¿cuánto sale?\nTe mostramos cómo armamos tu presupuesto paso a paso. 📋\nSin vueltas, sin sorpresas."
-cta: "Escribinos por WhatsApp para asesorarte"
-recursos: "Tomar material en sucursal con asesor real. Incluir subtítulos + hook en los primeros 2 segundos."
+━━━ HOOKS: REGLAS DE ORO ━━━
+El hook es el 80% del resultado. Nunca uses hooks genéricos. Cada hook debe activar uno de estos disparadores:
+
+CURIOSIDAD: "Lo que nadie te dijo sobre..." / "La razón real por la que..." / "Esto no lo vas a encontrar en otro lado"
+CONTRASTE/SORPRESA: "Dejé de hacer X y pasó esto" / "El error que cometemos todos" / "Esto no es lo que parece"
+IDENTIFICACIÓN: "Si alguna vez te pasó X, esto es para vos" / "Para los que todavía creen que..."
+FOMO/URGENCIA: "Hasta cuándo vas a esperar para..." / "Ya no hay excusas para no..."
+DATO/ESTADÍSTICA: "El X% de [público] no sabe esto" / "Solo 1 de cada 10 [acción]"
+PROMESA CLARA: "En 60 segundos entendés por qué..." / "3 cosas que cambian todo sobre..."
+
+El hook debe ser específico al cliente, su rubro y su público. NUNCA genérico.
+
+━━━ CTAs: ESTRATEGIA POR RED Y MOMENTO DEL FUNNEL ━━━
+El CTA depende de dónde está el usuario en su journey CON LA MARCA:
+
+AWARENESS (nuevos seguidores / top of funnel):
+  → "Guardá esto para cuando lo necesites"
+  → "Seguinos para ver más de esto"
+  → "Mandáselo a alguien que necesita leer esto"
+
+CONSIDERACIÓN (ya nos conocen, evalúan):
+  → "Escribinos y te contamos cómo funciona"
+  → "Comentá INFO y te mandamos los detalles"
+  → "Agendá una llamada sin compromiso"
+
+CONVERSIÓN (listos para comprar/contratar):
+  → "Reservá tu lugar ahora — quedan X"
+  → "Escribinos HOY por WhatsApp"
+  → "Hacé click en el link de la bio"
+
+RETENCIÓN (ya son clientes):
+  → "Contanos cómo te fue en los comentarios"
+  → "Etiquetá a alguien que también lo necesita"
+  → "Mandanos tu resultado por DM"
+
+Por red social:
+  Instagram Feed: CTAs de guardado, comentario, compartido
+  Instagram Stories: CTAs de swipe up, respuesta directa, encuesta
+  LinkedIn: CTAs de debate, opinión, reflexión profesional
+  TikTok: CTAs de duet, comentario con respuesta, guardar
+  Facebook: CTAs de compartido en grupos, comentario largo
+
+━━━ REGLAS DE PRODUCCIÓN ━━━
+- TITULO: descriptivo y específico. "Cómo elegir [producto] según tu presupuesto (Guía 2026)" no "Contenido educativo"
+- GUION: instrucción de producción ejecutable. QUÉ grabar/diseñar, con qué ángulo, en qué orden, con qué texto en pantalla. Mínimo 3 oraciones. Incluir el hook exacto de apertura.
+- COPY: voz humana de la marca. Máximo 4 líneas. 1-2 emojis en lugares naturales. Sin frases corporativas ("en nuestra empresa nos dedicamos a...").
+- RECURSOS: listado concreto de lo que el equipo necesita antes de producir. Específico: "foto del producto X en fondo blanco" no "material gráfico".
+- Días: Lunes a Viernes. No poner 2 piezas el mismo día a menos que sean redes distintas.
+- Formatos: variá entre Reel (alcance), Carrusel (educativo/guardado), Story (comunidad), Imagen (branding). No repetir el mismo formato más de 2 veces seguidas.
 
 RESPONDE ÚNICAMENTE con un JSON válido con esta estructura exacta (sin markdown, sin explicaciones):
 {
@@ -55,6 +90,30 @@ RESPONDE ÚNICAMENTE con un JSON válido con esta estructura exacta (sin markdow
       ]
     }
   ]
+}`;
+
+const SYSTEM_PROMPT_PIEZA = `Sos un estratega de contenido senior. Vas a generar UNA sola pieza de contenido para completar un planning existente.
+
+La pieza debe:
+- Tener un rol estratégico claro dentro de la semana (no repetir lo que ya existe)
+- Usar un hook basado en disparadores psicológicos concretos (curiosidad, contraste, FOMO, identificación, dato, promesa)
+- Tener un CTA adaptado a la red social y al momento del funnel
+- Tener un guion de producción ejecutable con al menos 3 oraciones
+- Complementar (no repetir) los formatos y pilares de las otras piezas de esa semana
+
+RESPONDE ÚNICAMENTE con un JSON válido con esta estructura (sin markdown, sin texto extra):
+{
+  "dia": "Lunes",
+  "semana": 1,
+  "red": "Instagram Feed",
+  "formato": "Reel",
+  "pilar": "Educativo",
+  "titulo": "string",
+  "guion": "string - mínimo 3 oraciones con hook de apertura explícito",
+  "copy": "string - máximo 4 líneas, 1-2 emojis, voz humana",
+  "hashtags": ["#tag1", "#tag2", "#tag3", "#tag4", "#tag5"],
+  "cta": "string - específico a la red y al funnel",
+  "recursos": "string - qué necesita el equipo para producirla"
 }`;
 
 const DEMO_PLANNING = {
@@ -379,12 +438,60 @@ ${planning.semanas.map((s: any) => `
     setEditando({ semanaIdx, piezaIdx, pieza: { ...pieza } });
   };
 
+  const [generandoPieza, setGenerandoPieza] = useState(false);
+
   const abrirNuevaPieza = (semanaIdx: number) => {
     setEditando({
       semanaIdx,
       piezaIdx: null,
       pieza: { ...PIEZA_VACIA, semana: semanaIdx + 1, red: form.redes[0] || "Instagram Feed" }
     });
+  };
+
+  const generarPiezaConIA = async (semanaIdx: number) => {
+    setGenerandoPieza(true);
+    const semana = planning.semanas[semanaIdx];
+    const piezasExistentes = semana.piezas.map((p: any) =>
+      `${p.dia} — ${p.red} — ${p.formato} — ${p.pilar} — "${p.titulo}"`
+    ).join("\n");
+
+    const userPrompt = `Cliente: ${form.cliente}
+Mes: ${form.mes}
+Objetivo del mes: ${form.objetivo}
+Público: ${form.publico || "No especificado"}
+Tono: ${form.tono || "No especificado"}
+Brief: ${form.brief || "No especificado"}
+Redes activas: ${form.redes.join(", ")}
+
+Semana ${semana.numero} — Foco: ${semana.foco}
+
+Piezas que ya existen en esta semana (NO repetir día, formato ni pilar si podés evitarlo):
+${piezasExistentes || "Ninguna todavía"}
+
+Generá UNA pieza nueva que complemente estratégicamente lo que ya hay.`;
+
+    try {
+      const response = await fetch("/api/planning", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ system: SYSTEM_PROMPT_PIEZA, userPrompt })
+      });
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
+      const text = data.content?.map((c: any) => c.text || "").join("") || "";
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error("No se encontró JSON");
+      const pieza = JSON.parse(jsonMatch[0]);
+      setEditando({ semanaIdx, piezaIdx: null, pieza: { ...pieza, semana: semana.numero } });
+    } catch (e: any) {
+      setEditando({
+        semanaIdx,
+        piezaIdx: null,
+        pieza: { ...PIEZA_VACIA, semana: semanaIdx + 1, red: form.redes[0] || "Instagram Feed" }
+      });
+    } finally {
+      setGenerandoPieza(false);
+    }
   };
 
   const guardarEdicion = () => {
@@ -752,8 +859,16 @@ Genera el planning mensual completo para 4 semanas. Distribuí las piezas en dí
                         <th style={{ background: Y, color: BK, fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 900, fontSize: 12, letterSpacing: "0.1em", padding: "10px 14px", textAlign: "left", width: 72 }}>DÍA</th>
                         {planning.semanas.map((s: any, i: number) => (
                           <th key={i} style={{ background: "#1A1A1A", borderLeft: `2px solid ${GR}`, padding: "10px 14px", textAlign: "left" }}>
-                            <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 900, fontSize: 14, color: Y, letterSpacing: "0.08em" }}>SEMANA {s.numero}</div>
-                            <div style={{ fontFamily: "'Barlow',sans-serif", fontSize: 11, color: "#666", marginTop: 3, fontWeight: 500 }}>{s.foco}</div>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                              <div>
+                                <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 900, fontSize: 14, color: Y, letterSpacing: "0.08em" }}>SEMANA {s.numero}</div>
+                                <div style={{ fontFamily: "'Barlow',sans-serif", fontSize: 11, color: "#666", marginTop: 3, fontWeight: 500 }}>{s.foco}</div>
+                              </div>
+                              <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
+                                <button title="Agregar manual" onClick={() => abrirNuevaPieza(i)} style={{ background: GR, border: "none", color: "#888", cursor: "pointer", fontSize: 11, padding: "3px 7px", fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700 }}>+</button>
+                                <button title="Generar con IA" onClick={() => generarPiezaConIA(i)} disabled={generandoPieza} style={{ background: `${Y}22`, border: `1px solid ${Y}44`, color: Y, cursor: generandoPieza ? "not-allowed" : "pointer", fontSize: 11, padding: "3px 7px", fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700 }}>🐝</button>
+                              </div>
+                            </div>
                           </th>
                         ))}
                       </tr>
@@ -837,9 +952,22 @@ Genera el planning mensual completo para 4 semanas. Distribuí las piezas en dí
                     </div>
                   </div>
                 ))}
-                <button className="add-pieza-btn" onClick={() => abrirNuevaPieza(activeWeek)}>
-                  + AGREGAR PIEZA A SEMANA {(planning.semanas[activeWeek]?.numero) || activeWeek + 1}
-                </button>
+                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                  <button
+                    className="add-pieza-btn"
+                    style={{ flex: 1 }}
+                    onClick={() => abrirNuevaPieza(activeWeek)}
+                  >
+                    + AGREGAR PIEZA MANUAL
+                  </button>
+                  <button
+                    onClick={() => generarPiezaConIA(activeWeek)}
+                    disabled={generandoPieza}
+                    style={{ flex: 1, padding: "12px", background: generandoPieza ? GR : `${Y}22`, border: `2px solid ${Y}55`, color: generandoPieza ? "#555" : Y, fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700, fontSize: 13, cursor: generandoPieza ? "not-allowed" : "pointer", textTransform: "uppercase", letterSpacing: "0.08em", transition: "all 0.12s" }}
+                  >
+                    {generandoPieza ? "🐝 GENERANDO..." : "🐝 GENERAR CON IA"}
+                  </button>
+                </div>
               </div>
             )}
           </div>
