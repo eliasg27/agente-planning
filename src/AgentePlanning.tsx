@@ -199,6 +199,10 @@ export default function AgentePlanning() {
   const [view, setView] = useState("calendar");
   const [selectedPieza, setSelectedPieza] = useState<any>(null);
   const [editando, setEditando] = useState<any>(null);
+  const [historial, setHistorial] = useState<any[]>(() => {
+    try { return JSON.parse(localStorage.getItem("pintamkt_historial") || "[]"); }
+    catch { return []; }
+  });
 
   // ── Persistencia ──────────────────────────────────────────────────────
   useEffect(() => {
@@ -223,6 +227,35 @@ export default function AgentePlanning() {
       localStorage.setItem("pintamkt_planning", JSON.stringify({ planning, formData }));
     } catch {}
   }, [planning, form.cliente, form.mes, form.objetivo, form.redes]);
+
+  useEffect(() => {
+    try { localStorage.setItem("pintamkt_historial", JSON.stringify(historial)); }
+    catch {}
+  }, [historial]);
+
+  const guardarEnHistorial = (p: any, formData: any) => {
+    const entrada = {
+      id: Date.now(),
+      fecha: new Date().toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" }),
+      cliente: formData.cliente,
+      mes: formData.mes,
+      totalPiezas: p.semanas?.flatMap((s: any) => s.piezas).length || 0,
+      planning: p,
+      formData,
+    };
+    setHistorial(prev => [entrada, ...prev]);
+  };
+
+  const eliminarDelHistorial = (id: number) => {
+    setHistorial(prev => prev.filter(e => e.id !== id));
+  };
+
+  const cargarDesdeHistorial = (entrada: any) => {
+    setPlanning(entrada.planning);
+    setForm(f => ({ ...f, ...entrada.formData }));
+    setActiveWeek(0);
+    setStep("result");
+  };
 
   // ── Helpers ───────────────────────────────────────────────────────────
   const calcularFecha = (dia: string, semana: number | undefined, mes: string): string => {
@@ -428,6 +461,10 @@ Genera el planning mensual completo para 4 semanas. Distribuí las piezas en dí
       setPlanning(parsed);
       setActiveWeek(0);
       setStep("result");
+      guardarEnHistorial(parsed, {
+        cliente: form.cliente, mes: form.mes,
+        objetivo: form.objetivo, redes: form.redes
+      });
     } catch (e: any) {
       setError("Error: " + e.message);
       setStep("form");
@@ -548,16 +585,66 @@ Genera el planning mensual completo para 4 semanas. Distribuí las piezas en dí
           <div style={{ background: Y, color: BK, fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 900, fontSize: 18, padding: "3px 10px" }}>🐝 PINTA<span style={{ fontWeight: 400 }}>MKT</span></div>
           <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700, fontSize: 15, letterSpacing: "0.12em", color: "#666", textTransform: "uppercase" }}>AGENTE DE PLANNING</div>
         </div>
-        {step === "result" && (
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          {historial.length > 0 && (
+            <button onClick={() => setStep("historial")} style={{ background: "transparent", border: `2px solid ${GR}`, color: step === "historial" ? Y : "#666", padding: "7px 14px", cursor: "pointer", fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700, fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", position: "relative" }}>
+              📁 HISTORIAL
+              <span style={{ background: Y, color: BK, borderRadius: "50%", fontSize: 10, fontWeight: 900, padding: "1px 5px", marginLeft: 6 }}>{historial.length}</span>
+            </button>
+          )}
+          {step === "result" && <>
             <button onClick={exportarPDF} style={{ background: Y, border: `2px solid ${Y}`, color: BK, padding: "7px 16px", cursor: "pointer", fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700, fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase" }}>⬇ PDF</button>
             <button onClick={exportarCSV} style={{ background: "transparent", border: `2px solid ${Y}55`, color: Y, padding: "7px 16px", cursor: "pointer", fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700, fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase" }}>⬇ CSV</button>
             <button onClick={() => { localStorage.removeItem("pintamkt_planning"); setStep("form"); setPlanning(null); }} style={{ background: "transparent", border: `2px solid ${GR}`, color: "#666", padding: "7px 14px", cursor: "pointer", fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700, fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase" }}>+ NUEVO</button>
-          </div>
-        )}
+          </>}
+        </div>
       </div>
 
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "36px 20px" }}>
+
+        {/* HISTORIAL */}
+        {step === "historial" && (
+          <div className="fade-up">
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>
+              <div>
+                <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 900, fontSize: 42, textTransform: "uppercase", lineHeight: 1 }}>PLANNINGS<br /><span style={{ color: Y }}>GUARDADOS</span></div>
+              </div>
+              <button onClick={() => setStep(planning ? "result" : "form")} style={{ background: "transparent", border: `2px solid ${GR}`, color: "#666", padding: "9px 18px", cursor: "pointer", fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700, fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase" }}>← VOLVER</button>
+            </div>
+            {historial.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "60px 0", color: "#444", fontFamily: "'Barlow',sans-serif" }}>No hay plannings guardados aún.</div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {historial.map((entrada) => (
+                  <div key={entrada.id} style={{ background: DK, border: `1px solid ${GR}`, padding: "18px 22px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 900, fontSize: 20, textTransform: "uppercase", color: CR, letterSpacing: "0.02em" }}>{entrada.cliente}</div>
+                      <div style={{ display: "flex", gap: 16, marginTop: 6, flexWrap: "wrap" }}>
+                        <span style={{ fontSize: 12, color: Y, fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700 }}>{entrada.mes}</span>
+                        <span style={{ fontSize: 12, color: "#555", fontFamily: "'Barlow',sans-serif" }}>{entrada.totalPiezas} piezas</span>
+                        <span style={{ fontSize: 12, color: "#444", fontFamily: "'Barlow',sans-serif" }}>Guardado el {entrada.fecha}</span>
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button
+                        onClick={() => cargarDesdeHistorial(entrada)}
+                        style={{ padding: "9px 20px", background: Y, border: "none", color: BK, fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 900, fontSize: 13, letterSpacing: "0.08em", cursor: "pointer", textTransform: "uppercase" }}
+                      >
+                        ABRIR
+                      </button>
+                      <button
+                        onClick={() => eliminarDelHistorial(entrada.id)}
+                        style={{ padding: "9px 14px", background: "transparent", border: `2px solid #333`, color: "#555", fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
+                      >
+                        🗑
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* FORM */}
         {step === "form" && (
