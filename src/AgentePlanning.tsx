@@ -258,6 +258,7 @@ export default function AgentePlanning() {
   const [view, setView] = useState("calendar");
   const [selectedPieza, setSelectedPieza] = useState<any>(null);
   const [editando, setEditando] = useState<any>(null);
+  const [activeRed, setActiveRed] = useState<string>("TODAS");
   const [historial, setHistorial] = useState<any[]>(() => {
     try { return JSON.parse(localStorage.getItem("pintamkt_historial") || "[]"); }
     catch { return []; }
@@ -850,64 +851,124 @@ Genera el planning mensual completo para 4 semanas. Distribuí las piezas en dí
             </div>
 
             {/* CALENDAR VIEW */}
-            {view === "calendar" && (
-              <div>
-                <div style={{ overflowX: "auto" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 700 }}>
-                    <thead>
-                      <tr>
-                        <th style={{ background: Y, color: BK, fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 900, fontSize: 12, letterSpacing: "0.1em", padding: "10px 14px", textAlign: "left", width: 72 }}>DÍA</th>
-                        {planning.semanas.map((s: any, i: number) => (
-                          <th key={i} style={{ background: "#1A1A1A", borderLeft: `2px solid ${GR}`, padding: "10px 14px", textAlign: "left" }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                              <div>
-                                <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 900, fontSize: 14, color: Y, letterSpacing: "0.08em" }}>SEMANA {s.numero}</div>
-                                <div style={{ fontFamily: "'Barlow',sans-serif", fontSize: 11, color: "#666", marginTop: 3, fontWeight: 500 }}>{s.foco}</div>
+            {view === "calendar" && (() => {
+              // Redes presentes en el planning (puede haber más que las del form si se agregaron manualmente)
+              const todasLasPiezas = planning.semanas.flatMap((s: any) => s.piezas);
+              const redesPresentes = ["TODAS", ...Array.from(new Set<string>(todasLasPiezas.map((p: any) => p.red)))];
+              const colorActiva = redColor[activeRed] || Y;
+
+              return (
+                <div>
+                  {/* Solapas por red */}
+                  <div style={{ display: "flex", gap: 0, marginBottom: 0, overflowX: "auto", borderBottom: `2px solid ${GR}` }}>
+                    {redesPresentes.map(red => {
+                      const isActive = activeRed === red;
+                      const color = red === "TODAS" ? Y : (redColor[red] || Y);
+                      const count = red === "TODAS"
+                        ? todasLasPiezas.length
+                        : todasLasPiezas.filter((p: any) => p.red === red).length;
+                      return (
+                        <button
+                          key={red}
+                          onClick={() => setActiveRed(red)}
+                          style={{
+                            padding: "10px 18px",
+                            cursor: "pointer",
+                            fontFamily: "'Barlow Condensed',sans-serif",
+                            fontWeight: 900,
+                            fontSize: 13,
+                            letterSpacing: "0.08em",
+                            textTransform: "uppercase",
+                            border: "none",
+                            borderBottom: isActive ? `3px solid ${color}` : "3px solid transparent",
+                            background: isActive ? `${color}12` : "transparent",
+                            color: isActive ? color : "#555",
+                            transition: "all 0.12s",
+                            whiteSpace: "nowrap",
+                            marginBottom: -2,
+                          }}
+                        >
+                          {red === "TODAS" ? "✦ TODAS" : `${redIcon[red] || ""} ${red}`}
+                          <span style={{ marginLeft: 6, fontSize: 11, opacity: 0.7, fontWeight: 700 }}>{count}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Tabla calendario */}
+                  <div style={{ overflowX: "auto", marginTop: 16 }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 700 }}>
+                      <thead>
+                        <tr>
+                          <th style={{ background: activeRed === "TODAS" ? Y : (redColor[activeRed] || Y), color: BK, fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 900, fontSize: 12, letterSpacing: "0.1em", padding: "10px 14px", textAlign: "left", width: 72 }}>DÍA</th>
+                          {planning.semanas.map((s: any, i: number) => (
+                            <th key={i} style={{ background: "#1A1A1A", borderLeft: `2px solid ${GR}`, padding: "10px 14px", textAlign: "left" }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                                <div>
+                                  <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 900, fontSize: 14, color: colorActiva, letterSpacing: "0.08em" }}>SEMANA {s.numero}</div>
+                                  <div style={{ fontFamily: "'Barlow',sans-serif", fontSize: 11, color: "#666", marginTop: 3, fontWeight: 500 }}>{s.foco}</div>
+                                </div>
+                                <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
+                                  <button title="Agregar manual" onClick={() => abrirNuevaPieza(i)} style={{ background: GR, border: "none", color: "#888", cursor: "pointer", fontSize: 11, padding: "3px 7px", fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700 }}>+</button>
+                                  <button title="Generar con IA" onClick={() => generarPiezaConIA(i)} disabled={generandoPieza} style={{ background: `${Y}22`, border: `1px solid ${Y}44`, color: Y, cursor: generandoPieza ? "not-allowed" : "pointer", fontSize: 11, padding: "3px 7px", fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700 }}>🐝</button>
+                                </div>
                               </div>
-                              <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
-                                <button title="Agregar manual" onClick={() => abrirNuevaPieza(i)} style={{ background: GR, border: "none", color: "#888", cursor: "pointer", fontSize: 11, padding: "3px 7px", fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700 }}>+</button>
-                                <button title="Generar con IA" onClick={() => generarPiezaConIA(i)} disabled={generandoPieza} style={{ background: `${Y}22`, border: `1px solid ${Y}44`, color: Y, cursor: generandoPieza ? "not-allowed" : "pointer", fontSize: 11, padding: "3px 7px", fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700 }}>🐝</button>
-                              </div>
-                            </div>
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {DIAS_SEMANA.map((dia, di) => (
-                        <tr key={dia} style={{ borderTop: `1px solid ${GR}` }}>
-                          <td style={{ background: "#111", padding: "12px 14px", verticalAlign: "top" }}>
-                            <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 900, fontSize: 14, color: di < 5 ? CR : "#444", letterSpacing: "0.06em" }}>{DIAS_SHORT[di]}</div>
-                          </td>
-                          {planning.semanas.map((semana: any, si: number) => {
-                            const piezas = semana.piezas.filter((p: any) => p.dia === dia);
-                            return (
-                              <td key={si} style={{ background: DK, borderLeft: `2px solid ${GR}`, padding: "8px 10px", verticalAlign: "top" }}>
-                                {piezas.map((p: any, pi: number) => {
-                                  const piezaIdx = semana.piezas.findIndex((x: any) => x === p);
-                                  // Fix: pass semana number so modal shows correct date
-                                  const piezaConSemana = { ...p, semana: p.semana ?? semana.numero };
-                                  return (
-                                    <div key={pi} className="pieza-chip" style={{ background: `${pilarColor[p.pilar] || "#666"}1A`, borderLeftColor: pilarColor[p.pilar] || "#666", position: "relative" }} onClick={() => setSelectedPieza(piezaConSemana)}>
-                                      <button onClick={(e) => abrirEditor(si, piezaIdx, p, e)} style={{ position: "absolute", top: 4, right: 4, background: GR, border: "none", color: "#888", cursor: "pointer", fontSize: 10, padding: "2px 5px", fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700 }}>✎</button>
-                                      <div style={{ fontSize: 10, color: redColor[p.red] || Y, fontWeight: 700, marginBottom: 2 }}>{redIcon[p.red]} {p.red}</div>
-                                      <div style={{ fontSize: 12, fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700, textTransform: "uppercase", color: CR, lineHeight: 1.15, letterSpacing: "0.02em" }}>{p.titulo}</div>
-                                      <div style={{ fontSize: 10, color: pilarColor[p.pilar] || "#888", marginTop: 3 }}>[{p.formato}]</div>
-                                      {(() => { const f = calcularFecha(p.dia, p.semana ?? semana.numero, form.mes); return f ? <div style={{ fontSize: 10, color: "#555", marginTop: 2 }}>📅 {f}</div> : null; })()}
-                                    </div>
-                                  );
-                                })}
-                              </td>
-                            );
-                          })}
+                            </th>
+                          ))}
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {DIAS_SEMANA.map((dia, di) => {
+                          // Ocultar filas sin piezas en la red activa (excepto TODAS)
+                          if (activeRed !== "TODAS") {
+                            const hayPiezas = planning.semanas.some((s: any) =>
+                              s.piezas.some((p: any) => p.dia === dia && p.red === activeRed)
+                            );
+                            if (!hayPiezas) return null;
+                          }
+                          return (
+                            <tr key={dia} style={{ borderTop: `1px solid ${GR}` }}>
+                              <td style={{ background: "#111", padding: "12px 14px", verticalAlign: "top" }}>
+                                <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 900, fontSize: 14, color: di < 5 ? CR : "#444", letterSpacing: "0.06em" }}>{DIAS_SHORT[di]}</div>
+                                <div style={{ fontSize: 10, color: "#444", fontFamily: "'Barlow',sans-serif", marginTop: 2 }}>{dia}</div>
+                              </td>
+                              {planning.semanas.map((semana: any, si: number) => {
+                                const piezas = semana.piezas.filter((p: any) =>
+                                  p.dia === dia && (activeRed === "TODAS" || p.red === activeRed)
+                                );
+                                return (
+                                  <td key={si} style={{ background: DK, borderLeft: `2px solid ${GR}`, padding: "8px 10px", verticalAlign: "top", minHeight: 40 }}>
+                                    {piezas.length === 0
+                                      ? <div style={{ height: 28 }} />
+                                      : piezas.map((p: any, pi: number) => {
+                                          const piezaIdx = semana.piezas.findIndex((x: any) => x === p);
+                                          const piezaConSemana = { ...p, semana: p.semana ?? semana.numero };
+                                          return (
+                                            <div key={pi} className="pieza-chip" style={{ background: `${pilarColor[p.pilar] || "#666"}1A`, borderLeftColor: pilarColor[p.pilar] || "#666", position: "relative" }} onClick={() => setSelectedPieza(piezaConSemana)}>
+                                              <button onClick={(e) => abrirEditor(si, piezaIdx, p, e)} style={{ position: "absolute", top: 4, right: 4, background: GR, border: "none", color: "#888", cursor: "pointer", fontSize: 10, padding: "2px 5px", fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700 }}>✎</button>
+                                              {activeRed === "TODAS" && (
+                                                <div style={{ fontSize: 10, color: redColor[p.red] || Y, fontWeight: 700, marginBottom: 2 }}>{redIcon[p.red]} {p.red}</div>
+                                              )}
+                                              <div style={{ fontSize: 12, fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700, textTransform: "uppercase", color: CR, lineHeight: 1.15, letterSpacing: "0.02em" }}>{p.titulo}</div>
+                                              <div style={{ fontSize: 10, color: pilarColor[p.pilar] || "#888", marginTop: 3 }}>[{p.formato}] · <span style={{ color: pilarColor[p.pilar] || "#888" }}>{p.pilar}</span></div>
+                                              {(() => { const f = calcularFecha(p.dia, p.semana ?? semana.numero, form.mes); return f ? <div style={{ fontSize: 10, color: "#555", marginTop: 2 }}>📅 {f}</div> : null; })()}
+                                            </div>
+                                          );
+                                        })
+                                    }
+                                  </td>
+                                );
+                              })}
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div style={{ marginTop: 10, fontSize: 12, color: "#555", fontStyle: "italic" }}>💡 Hacé clic en cualquier pieza para ver guión, copy y hashtags completos</div>
                 </div>
-                <div style={{ marginTop: 10, fontSize: 12, color: "#555", fontStyle: "italic" }}>💡 Hacé clic en cualquier pieza para ver guión, copy y hashtags completos</div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* LIST VIEW */}
             {view === "list" && (
